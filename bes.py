@@ -1,5 +1,12 @@
 #!/usr/bin/python
+from __future__ import print_function
 import xml.etree.ElementTree as ET
+
+try:
+    InputError
+except NameError:
+    InputError = TypeError
+
 
 class File(object):
     def __init__(self, string):
@@ -13,7 +20,7 @@ class File(object):
             if child.tag == 'Fixlet':
                 self.fixlets.append(File.elementfactory(child))
             else:
-                print "Unrecognized Element: " + child.tag
+                print("Unrecognized Element: " + child.tag)
 
     @classmethod
     def fromfilename(cls, filename):
@@ -26,13 +33,14 @@ class File(object):
             return Fixlet(element)
         elif len(element) == 0 and element.text:
             return TextElement.fromxml(element)
-        elif element.tag == 'Action' || element.tag == 'DefaultAction':
+        elif element.tag in ('Action', 'DefaultAction'):
             return Action(element)
         else:
             return Element(element)
 
     def printBES(self):
-        print self.raw
+        print(self.raw)
+
 
 class Element(object):
     def __init__(self, element):
@@ -64,7 +72,7 @@ class Element(object):
                     return self.children[val].text
                 else:
                     return None
-        
+
         return AttributeError
 
     def setattribute(self, name, value):
@@ -83,6 +91,7 @@ class Element(object):
         else:
             self.children['Relevance'] = [element]
 
+
 class Fixlet(Element):
     def __init__(self, element):
         self.plurals = set(['Relevance', 'Action'])
@@ -97,8 +106,8 @@ class Fixlet(Element):
             'SourceSeverity',
             'CVENames',
             'SANSID',
-            'Domain'
-            ])
+            'Domain'])
+
 
 class Action(Element):
     def __init__(self, element):
@@ -127,17 +136,16 @@ class TextElement(Element):
     def gettext(self):
         return self.text
 
+
 # Test code
 besfile = File.fromfilename('test/test.bes')
 for fixlet in besfile.fixlets:
-    print fixlet.tag
-    print fixlet.title
-    print fixlet.Description
+    print(fixlet.tag)
+    print(fixlet.title)
+    print(fixlet.Description)
 
-    print ''
-    print '== Relevance: =='
+    print('')
+    print('== Relevance: ==')
     fixlet.addrelevance('true')
     for relevance in fixlet.children['Relevance']:
-        print relevance.text
-
-
+        print(relevance.text)
